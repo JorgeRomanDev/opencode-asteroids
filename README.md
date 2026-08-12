@@ -42,6 +42,7 @@ Luego visita `http://localhost:3000`.
 ## Características
 
 - 3 vidas con invencibilidad temporal al reaparecer (parpadeo)
+- Power-up **Escudo**: protege durante 5 segundos contra asteroides, estrellas fugaces y proyectiles enemigos
 - Asteroides se parten en fragmentos más pequeños al ser destruidos
 - Partículas de explosión al destruir asteroides
 - Power-up **Velocidad**: los asteroides pueden soltarlo y duplica la velocidad y la propulsión de la nave durante 5 segundos
