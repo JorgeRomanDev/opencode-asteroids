@@ -44,3 +44,4 @@ Luego visita `http://localhost:3000`.
 - Asteroides se parten en fragmentos más pequeños al ser destruidos
 - Partículas de explosión al destruir asteroides
 - Power-up **Velocidad**: los asteroides pueden soltarlo y duplica la velocidad y la propulsión de la nave durante 5 segundos
+- Power-up **Triple shot**: dispara tres balas simultáneas en abanico durante 5 segundos
