@@ -12,7 +12,6 @@ jobs:
   triage:
     runs-on: ubuntu-latest
     permissions:
-      id-token: write
       contents: read
       issues: write
     steps:
@@ -25,8 +24,10 @@ jobs:
         uses: anomalyco/opencode/github@latest
         env:
           OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
+          GITHUB_TOKEN: ${{ github.token }}
         with:
           model: opencode/big-pickle
+          use_github_token: true
           share: false
           prompt: |
             Triage the newly opened GitHub issue in Spanish.
