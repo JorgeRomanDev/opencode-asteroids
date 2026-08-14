@@ -44,12 +44,21 @@ const SHIELD_POWERUP_TTL = 8;
 const SHIELD_IMPACT_DURATION = 0.25;
 
 const SHIP_SKINS = [
-  { id: 'classic', name: 'CLASICA', color: '#fff', flame: '#ff8200', flameX: -8, flameWidth: 4 },
-  { id: 'interceptor', name: 'INTERCEPTOR', color: '#00e5ff', flame: '#00a6ff', flameX: -10, flameWidth: 5 },
-  { id: 'comet', name: 'COMETA', color: '#ff4fd8', flame: '#ffe45c', flameX: -11, flameWidth: 4 },
+  { id: 'classic', name: 'CLASICA', color: '#fff', flame: '#ff8200', flameX: -8, flameWidth: 4, size: 1, pointsMultiplier: 1 },
+  { id: 'interceptor', name: 'INTERCEPTOR', color: '#00e5ff', flame: '#00a6ff', flameX: -10, flameWidth: 5, size: 1, pointsMultiplier: 1 },
+  { id: 'comet', name: 'COMETA', color: '#ff4fd8', flame: '#ffe45c', flameX: -11, flameWidth: 4, size: 1, pointsMultiplier: 1 },
+  { id: 'gigante', name: 'GIGANTE', color: '#9b59ff', flame: '#e0aaff', flameX: -8, flameWidth: 5, size: 2, pointsMultiplier: 2 },
 ];
 const SHIP_SKIN_STORAGE_KEY = 'asteroids-ship-skin';
 const SHIP_SKIN_NOTICE_DURATION = 1.8;
+
+function getShipSkinScale() {
+  return SHIP_SKINS[selectedShipSkin].size || 1;
+}
+
+function getShipPointsMultiplier() {
+  return SHIP_SKINS[selectedShipSkin].pointsMultiplier || 1;
+}
 
 function loadShipSkin() {
   try {
@@ -438,7 +447,7 @@ class Ship {
     this.angle  = -Math.PI / 2;
     this.vx     = 0;
     this.vy     = 0;
-    this.radius = 12;
+    this.radius = 12 * getShipSkinScale();
     this.thrusting     = false;
     this.invincible    = 3;
     this.shootCooldown = 0;
@@ -463,6 +472,8 @@ class Ship {
       this.shieldImpactTimer = Math.max(0, this.shieldImpactTimer - dt);
     if (this.shieldTimer > 0)
       this.shieldTimer = Math.max(0, this.shieldTimer - dt);
+
+    this.radius = 12 * getShipSkinScale();
 
     const ROT   = 3.5;   // rad/s
     const THRUST = 260;  // px/s²
@@ -519,7 +530,7 @@ class Ship {
   tryShoot() {
     if (this.shootCooldown > 0 || this.dead) return [];
     this.shootCooldown = 0.2;
-    const NOSE = 21;
+    const NOSE = 21 * getShipSkinScale();
     const ox = this.x + Math.cos(this.angle) * NOSE;
     const oy = this.y + Math.sin(this.angle) * NOSE;
     if (this.tripleShotTimer > 0) {
@@ -538,7 +549,7 @@ class Ship {
     if (this.shieldTimer > 0) {
       const time = this.shieldTimer / SHIELD_DURATION;
       const impact = this.shieldImpactTimer / SHIELD_IMPACT_DURATION;
-      const radius = SHIELD_RADIUS + impact * 5;
+      const radius = SHIELD_RADIUS * getShipSkinScale() + impact * 5;
       ctx.save();
       ctx.translate(this.x, this.y);
       ctx.fillStyle = `rgba(40, 180, 255, ${(0.04 + time * 0.08).toFixed(2)})`;
@@ -559,7 +570,7 @@ class Ship {
     ctx.save();
     ctx.translate(this.x, this.y);
     ctx.rotate(this.angle);
-    drawShipSkin(1, this.thrusting);
+    drawShipSkin(getShipSkinScale(), this.thrusting);
     ctx.restore();
   }
 }
@@ -735,7 +746,7 @@ function update(dt) {
       if (!a.dead && !b.dead && dist(b, a) < a.radius) {
         b.dead = true;
         a.dead = true;
-        score += a.points;
+        score += a.points * getShipPointsMultiplier();
         explode(a.x, a.y, a.size * 5);
         newAsteroids.push(...a.split());
         const drop = Math.random();
@@ -781,7 +792,7 @@ function update(dt) {
   // Proyectil enemigo vs escudo o nave
   for (const bullet of enemyBullets) {
     const shieldActive = ship.shieldTimer > 0;
-    const collisionRadius = shieldActive ? SHIELD_RADIUS : ship.radius;
+    const collisionRadius = shieldActive ? SHIELD_RADIUS * getShipSkinScale() : ship.radius;
     if (!bullet.dead && dist(ship, bullet) < collisionRadius + bullet.radius) {
       bullet.dead = true;
       if (ship.invincible > 0) continue;
@@ -798,11 +809,11 @@ function update(dt) {
   // Nave vs asteroide
   if (ship.invincible <= 0) {
     for (const a of asteroids) {
-      const collisionRadius = ship.shieldTimer > 0 ? SHIELD_RADIUS : ship.radius;
+      const collisionRadius = ship.shieldTimer > 0 ? SHIELD_RADIUS * getShipSkinScale() : ship.radius;
       if (dist(ship, a) < collisionRadius + a.radius * 0.82) {
         if (ship.shieldTimer > 0) {
           a.dead = true;
-          score += a.points;
+          score += a.points * getShipPointsMultiplier();
           explode(a.x, a.y, a.size * 5);
           ship.registerShieldImpact();
         } else {
