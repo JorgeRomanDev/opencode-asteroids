@@ -15,6 +15,7 @@ jobs:
       startsWith(github.event.comment.body, '/opencode')
     runs-on: ubuntu-latest
     permissions:
+      id-token: write
       contents: write
       pull-requests: write
       issues: write
@@ -22,21 +23,12 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v6
         with:
-          persist-credentials: true
+          persist-credentials: false
 
-      - name: Configure Git identity
-        run: |
-          git config --local user.name "github-actions[bot]"
-          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
-
-      - name: Install opencode
-        run: curl --retry 3 --retry-all-errors -fsSL https://opencode.ai/install | bash
-
-      - name: Run opencode
-        run: |
-          "$HOME/.opencode/bin/opencode" github run
+      - name: Run OpenCode
+        uses: anomalyco/opencode/github@latest
         env:
           OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          MODEL: opencode/big-pickle
-          USE_GITHUB_TOKEN: "true"
+        with:
+          model: opencode/big-pickle
+          share: false
