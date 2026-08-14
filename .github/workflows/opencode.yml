@@ -33,7 +33,8 @@ jobs:
         run: curl --retry 3 --retry-all-errors -fsSL https://opencode.ai/install | bash
 
       - name: Run opencode
-        run: "$HOME/.opencode/bin/opencode" github run
+        run: |
+          "$HOME/.opencode/bin/opencode" github run
         env:
           OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
